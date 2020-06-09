@@ -1,0 +1,134 @@
+const wordsBank = "borboleta abelha macaco cachorro gato cavalo peixe urso formiga alce anta aranha arara baleia bezerro boi cabra camelo canguru capivara caranguejo coelho elefante flamingo gafanhoto galinha galo hamster lobo lagosta";
+
+$(document).ready(function() {
+  const words = wordsBank.toUpperCase().split(' ');
+
+  let chooseOne = 0;
+  let mysteryWord = [];
+  let myWord = [];
+  let strWord = '';
+  let correctLetters = [];
+  let wrongLetters = [];
+  let wrongTryCounter = 0;
+
+  const winningSound = () => new Audio(`sound/success.wav`);
+  const losingSound = () => new Audio(`http://95.216.113.156/yg/a7/tN-PJYMxq4JTsyG3DezzcQ,1591741504/yt:K3kFQHKE0LA-1/GTAVWastedBusted-Gaming%20Sound%20Effect(HD).mp3`);
+  const keySound = () => new Audio(`sound/keyboard-1.wav`);
+
+  // creating the keyboard
+  for (let i = 65; i <= 90; i++){
+    $('#keyboard').append(
+      `<button id="${String.fromCharCode(i)}" class="btn btn-outline-secondary keyboard">${String.fromCharCode(i)}</button>`
+    );
+  }
+
+  newGame();
+
+  function newGame() {
+    chooseOne = Math.floor(Math.random() * words.length);
+    mysteryWord = words[chooseOne].split('');
+    myWord = [];
+    strWord = '';
+    correctLetters = [];
+    wrongLetters = [];
+    wrongTryCounter = 0;
+
+    // clean the keyboard
+    for (let i = 65; i <= 90; i++){
+      $(`#${String.fromCharCode(i)}`).removeClass().addClass('btn btn-outline-secondary keyboard');
+    }
+
+    // creating Mistery Word
+    buildMisteryWord();
+
+    // Create the Gallows image
+    $('img').attr('src', `img/g0.jpg`);
+
+    console.log(mysteryWord.join(''));
+  }
+
+  // creating the Hidden Word
+  function buildMisteryWord() {
+    strWord = '';
+    myWord = [];
+    for (let w = 0; w <= mysteryWord.length - 1; w++){
+      if (correctLetters.includes(mysteryWord[w])) {
+        myWord.push(mysteryWord[w]);
+        strWord += `<span class="letter">${mysteryWord[w]}</span>`;
+      } else {
+        strWord += `<span class="letter">&nbsp;</span>`;
+      }
+    }
+    // print the word below the keyboard
+    $('#word').html(strWord);
+
+    // test if the actual word is equal to mistery word. If yes, call gameOver function
+    if (myWord.length === mysteryWord.length) {
+      for (let i = 0; i < myWord.length; i++) {
+        if (myWord[i] != mysteryWord[i]) {
+          return false;
+        }
+      }
+      gameOver('WON');
+    }
+  }
+
+  // listen to the click buttons
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', event => {
+      const {currentTarget} = event;
+      let chosenLetter = currentTarget.getAttribute('id');
+      guess(chosenLetter);
+    })
+  })
+
+  // listen to the type keyboard
+  document.addEventListener('keypress', event => {
+    const {key, keyCode} = event;
+    let chosenLetter = key.toUpperCase();
+    // only letters
+    if ((keyCode >= 65 && keyCode <= 90) || (keyCode >= 97 && keyCode <= 122)) {
+      guess(chosenLetter);
+    }
+  })
+
+  function guess(chosenLetter) {
+    keySound().play();
+    if (mysteryWord.includes(chosenLetter)) {
+      if (!correctLetters.includes(chosenLetter)) {
+        correctLetters.push(chosenLetter);
+        $(`#${chosenLetter}`).addClass('btn-success disabled').removeClass('btn-outline-secondary');
+        }
+    } else {
+      if (!wrongLetters.includes(chosenLetter)) {
+        wrongLetters.push(chosenLetter);
+        $(`#${chosenLetter}`).addClass('btn-danger disabled').removeClass('btn-outline-secondary');
+        wrongTryCounter += 1;
+        if (wrongTryCounter === 6) {
+          gameOver('LOST');
+        }
+      }
+      $('img').attr('src', `img/g${wrongTryCounter}.jpg`);
+    }
+    buildMisteryWord();
+  }
+
+  function gameOver(value) {
+    if (value === 'WON') {
+      winningSound().play();
+      setTimeout(() => {
+        alert('Você VENCEU!!! Jogue denovo');
+        // location.reload();
+        newGame();
+  		}, 700);
+    } else {
+      losingSound().play();
+      setTimeout(() => {
+        alert(`Você PERDEU!! Tente novamente \nA palavra é ${mysteryWord.join('')}`);
+        // location.reload();
+        newGame();
+  		}, 700);
+    }
+  }
+
+})
