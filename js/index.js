@@ -12,7 +12,7 @@ $(document).ready(function() {
   let wrongTryCounter = 0;
 
   const winningSound = () => new Audio(`sound/success.wav`);
-  const losingSound = () => new Audio(`http://95.216.113.156/yg/a7/tN-PJYMxq4JTsyG3DezzcQ,1591741504/yt:K3kFQHKE0LA-1/GTAVWastedBusted-Gaming%20Sound%20Effect(HD).mp3`);
+  const losingSound = () => new Audio(`sound/fail.mp3`);
   const keySound = () => new Audio(`sound/keyboard-1.wav`);
 
   // creating the keyboard
